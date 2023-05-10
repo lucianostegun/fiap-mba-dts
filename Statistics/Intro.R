@@ -31,3 +31,11 @@ rm(list=ls())
 # COMANDOS
 x <- c(1:10) # Cria uma lista de 1 até 10
 media_x <- mean(x)
+
+# desvio padrao
+dp_x <- sd(x)
+
+# vetor com missing
+x <- c(1:10,NA) # Cria uma lista com númerode de 1 a 10 e mais um elemento faltante
+mean(x) # Só retorna NA por causa do dado faltante
+mean(x, na.rm=TRUE) # Remove os dados faltantes
