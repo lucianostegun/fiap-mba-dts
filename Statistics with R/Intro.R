@@ -39,3 +39,39 @@ dp_x <- sd(x)
 x <- c(1:10,NA) # Cria uma lista com númerode de 1 a 10 e mais um elemento faltante
 mean(x) # Só retorna NA por causa do dado faltante
 mean(x, na.rm=TRUE) # Remove os dados faltantes
+x
+# desvio padrao com dado faltante (missing)
+dp_x <- sd(x, na.rm=TRUE);
+
+# valor minimo
+min_x = min(x, na.rm=TRUE)
+
+# valor maximo
+max_x = max(x, na.rm=TRUE)
+ls(x, na.rm=TRUE)
+
+# Criacao de funcao nao pode usar = para atribuir o valor
+func_media <- function(vetor) {
+  vetor_sem_na = na.exclude(vetor)
+  soma <- sum(vetor_sem_na, na.rm=TRUE)
+  num_ob <- length(vetor_sem_na)
+  media <- soma / num_ob
+  
+  return(media)
+}
+
+func_media(x)
+
+func_dp <- function(vetor) {
+  n = na.exclude(vetor)
+  media = mean(n)
+  diferenca = (n - media) ^ 2
+  soma_diferenca= sum(diferenca)
+  nobs = length(n)
+  desvio_padrao = sqrt(soma_diferenca / (nobs-1))
+  
+  return(desvio_padrao)
+}
+
+func_dp(x)
+sd(x, na.rm = TRUE)
