@@ -25,3 +25,9 @@ y = 2 * x^2 + 2*x + 1
 length(x)
 
 z <- c(x,y); z
+
+rm(list=ls())
+
+# COMANDOS
+x <- c(1:10) # Cria uma lista de 1 até 10
+media_x <- mean(x)
