@@ -73,5 +73,6 @@ func_dp <- function(vetor) {
   return(desvio_padrao)
 }
 
+x = c(1:9999)
 func_dp(x)
 sd(x, na.rm = TRUE)
