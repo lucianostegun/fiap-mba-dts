@@ -100,3 +100,25 @@ hist(renda_sem_out$RENDA_PRESUMIDA,
      xlab = "Renda presumida (R$)",
      ylab = "Frequência absoluta",
      main = "Distribuição da variável Renda presumida")
+
+min <- min(cadastro$RENDA_PRESUMIDA)
+max <- max(cadastro$RENDA_PRESUMIDA)
+q1 <- quantile(cadastro$RENDA_PRESUMIDA, 0.25)
+q2 <- quantile(cadastro$RENDA_PRESUMIDA, 0.5)
+q3 <- quantile(cadastro$RENDA_PRESUMIDA, 0.75)
+iqr <- q3 - q1
+l1 = q3 + 3 * iqr
+l2 = q3 + 1.5 * iqr
+l3 = q1 - 1.5 * iqr
+l4 = q1 - 3 * iqr
+
+min
+max
+q1
+q2
+q3
+iqr
+l1
+l2
+l3
+l4
