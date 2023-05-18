@@ -73,4 +73,30 @@ summary(cadastro$RENDA_PRESUMIDA)
 # Criar variável outlier_renda
 cadastro$outlider_renda <- ifelse(cadastro$RENDA_PRESUMIDA > 5492, "ponto extremo",
                                  ifelse(cadastro$RENDA_PRESUMIDA > 4208, "oulier",
-                                 ifelse(cadastro$RENDA_PRESUMIDA > 784, "não", "oulier")))
+                                 ifelse(cadastro$RENDA_PRESUMIDA > 784, "nao", "oulier")))
+
+# Tabela de frequencia de variavel outlier renda
+table(cadastro$outlider_renda)
+
+# Media, Desvio padrao e coeficiente de variacao de variavel renda presumida
+media_renda <- mean(cadastro$RENDA_PRESUMIDA)
+dp_renda <- sd(cadastro$RENDA_PRESUMIDA)
+cv_renda <- dp_renda/media_renda
+
+media_renda
+dp_renda
+cv_renda
+
+# Calcular a media, desvio padrao e coeficiente de variacao da renda sem outliers
+renda_sem_out <- cadastro[cadastro$outlider_renda == "nao",]
+media_renda <- mean(renda_sem_out$RENDA_PRESUMIDA)
+dp_renda_sem_out <- sd(renda_sem_out$RENDA_PRESUMIDA)
+cv_renda_sem_out <- dp_renda_sem_out/media_renda
+
+media_renda
+dp_renda_sem_out
+cv_renda_sem_out
+hist(renda_sem_out$RENDA_PRESUMIDA,
+     xlab = "Renda presumida (R$)",
+     ylab = "Frequência absoluta",
+     main = "Distribuição da variável Renda presumida")
