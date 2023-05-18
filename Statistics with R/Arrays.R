@@ -64,3 +64,13 @@ hist(cadastro$RENDA_PRESUMIDA,
      xlab = "Renda presumida (R$)",
      ylab = "Frequência absoluta",
      main = "Distribuição da variável Renda presumida")
+
+# Gráfico BoxPlot para identificação de Outliers
+boxplot(cadastro$RENDA_PRESUMIDA)
+
+summary(cadastro$RENDA_PRESUMIDA)
+
+# Criar variável outlier_renda
+cadastro$outlider_renda <- ifelse(cadastro$RENDA_PRESUMIDA > 5492, "ponto extremo",
+                                 ifelse(cadastro$RENDA_PRESUMIDA > 4208, "oulier",
+                                 ifelse(cadastro$RENDA_PRESUMIDA > 784, "não", "oulier")))
