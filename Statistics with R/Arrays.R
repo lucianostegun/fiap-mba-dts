@@ -38,3 +38,29 @@ m5 <- cbind(m3,m4)
 # Juntar duas matrizes com a mesma quantidade de colunas com rbind (Row Bind)
 m5 <- rbind(m2,m4)
 m5
+
+1.4/21
+
+a = c(3,3,3,3,5,5,5,5)
+b = c(1,1,3,3,5,5,7,7)
+
+sd(a)
+
+library(readr)
+cadastro <- read_csv("fiap-mba-dts/Statistics with R/Paperwork/Aula02/cadastro.csv")
+View(cadastro)
+str(cadastro)
+
+summary(cadastro)
+
+# Gráficos
+
+# Histograma da variável RENDA_PRESUMIDA
+View(cadastro$RENDA_PRESUMIDA)
+hist(cadastro$RENDA_PRESUMIDA)
+
+# Formatar as informações do gráfico
+hist(cadastro$RENDA_PRESUMIDA,
+     xlab = "Renda presumida (R$)",
+     ylab = "Frequência absoluta",
+     main = "Distribuição da variável Renda presumida")
