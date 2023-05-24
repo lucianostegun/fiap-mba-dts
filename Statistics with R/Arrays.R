@@ -1,5 +1,5 @@
 # AULA 02 - 17/05/2023
-# Incluir um ? antes do comando vai exibir a ajuda do comando no painel
+# Incluir um "?" antes do comando vai exibir a ajuda do comando no painel
 ?rm
 ?list
 a = 10
