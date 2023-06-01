@@ -1,0 +1,63 @@
+---
+title: "Sorteio de amostra"
+author: "Luciano Stegun"
+date: '2023-06-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A gerente da área de Marketing Relacionamento da empresa XYZ tem observado, nas últimas campanhas, um aumento no número de clientes não contatados. Uma das estratégias para melhorar esse quadro é a utilização de outros canais de relacionamento. A gerente deseja testar os canais de relacionamento em uma amostra de tamanho igual a 40.
+
+![Figura 1.](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 04/dic_arq4.png)
+
+```{r pacotes}
+library(summarytools)
+```
+
+```{r dados}
+library(readr)
+Arq_trab4 <- read_csv("C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 04/Arq_trab4.csv")
+```
+
+Conhecer a populacao
+
+```{r sexop}
+freq(Arq_trab4$Sexo)
+```
+```{r idadep}
+summary(Arq_trab4$idade)
+```
+
+```{r escolaridadep}
+summary(Arq_trab4$Anos_estudo)
+```
+
+Sortear uma amostra de 40 clientes
+
+```{r amostra}
+set.seed(222) # Salvar a amostra para trabalhar no futuro
+amostra = Arq_trab4[sample(1:nrow(Arq_trab4), size = 40, replace = FALSE),]
+```
+
+Conhecer a amosta
+
+```{r sexoa}
+freq(amostra$Sexo)
+```
+
+```{r idadea}
+summary(amostra$idade)
+```
+
+```{r escolaridadea}
+summary(amostra$Anos_estudo)
+```
+
+Calcular o intervalo de confianca
+
+```{r intervalo_confianca}]
+![Figura 2.](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 04/dic_arq4.png)
+```
