@@ -1,0 +1,55 @@
+---
+title: "Regressao linear simples"
+author: "Luciano Stegun"
+date: '2023-06-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+![Figura 1](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 05/figura1_densidade_celular.png)
+
+```{r pacotes}
+library(ggplot2)
+```
+
+```{r dados}
+densidade = c(4.4,8.9,13.5,16.4,19.7,25.8,35.9,46.6,53.2)
+ano = c(1998:2006)
+tempo = c(1:9)
+df = cbind(ano, tempo, densidade)
+df = as.data.frame(df)
+```
+
+lm = Linear Model
+se = Standard Error
+```{r grafico1}
+g1 <- ggplot(df,aes(x=tempo,y=densidade)) +
+     geom_point() +
+     geom_smooth(method=lm, se=FALSE)
+g1
+```
+
+![Figura 2](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 05/figura2_correlacao_Pearson.png)
+
+Calcular a correlacao de Pearson entre densidade e tempo
+```{r correlacao}
+correlacao = cor(df$tempo, df$densidade)
+correlacao
+```
+
+![Figura 3](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 05/figura3_regressao_linear_simples.png)
+
+Ajustar o modelo de Regressao Linear Simples
+
+modelo teorico --> y = b0 + b1 * x
+modelo ajustado --> densidade = b0 + b1 * tempo
+b0 = -5.2750
+b1 = 6.0417
+
+modelo ajustado --> densidade = -5.2750 + 6.0417 * tempo
+```{r modelo1}
+modelo1= lm(df$densidade ~ df$tempo)
+summary(modelo1)
+```

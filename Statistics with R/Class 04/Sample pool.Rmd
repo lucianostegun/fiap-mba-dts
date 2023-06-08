@@ -42,7 +42,7 @@ set.seed(222) # Salvar a amostra para trabalhar no futuro
 amostra = Arq_trab4[sample(1:nrow(Arq_trab4), size = 40, replace = FALSE),]
 ```
 
-Conhecer a amosta
+Conhecer a amostra
 
 ```{r sexoa}
 freq(amostra$Sexo)
@@ -60,4 +60,29 @@ Calcular o intervalo de confianca
 
 ```{r intervalo_confianca}]
 ![Figura 2.](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 04/dic_arq4.png)
+```{r proporcao}
+freq(amostra$Telefone_movel)
+```
+
+A proporcao de clientes com telefone movel esta entre 64% e 90%
+```{r ic95}
+# modo 1
+# p = 0.775
+
+# modo 2
+tem_telefone = ifelse(amostra$Telefone_movel == 2, 1, 0)
+p = sum(tem_telefone) / length(amostra$Telefone_movel)
+
+data_frame = as.data.frame(freq(amostra$Telefone_movel))
+p = data_frame$`% Valid Cum.`[1] / 100
+
+q = 1-p
+erro_padrao = sqrt((p*q)/40)
+margem_erro = 1.96 * erro_padrao
+margem_erro
+
+limite_inferior = p - margem_erro
+limite_superior = p + margem_erro
+limite_inferior
+limite_superior
 ```
