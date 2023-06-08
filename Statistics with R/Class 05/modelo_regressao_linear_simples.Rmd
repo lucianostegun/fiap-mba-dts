@@ -49,7 +49,22 @@ b0 = -5.2750
 b1 = 6.0417
 
 modelo ajustado --> densidade = -5.2750 + 6.0417 * tempo
+
+Previsao para tempo = 10, 11, 12...
+
+densidade(1) = densidade = -5.2750 + 6.0417 * 1
+densidade(2) = densidade = -5.2750 + 6.0417 * 2
+densidade(5) = densidade = -5.2750 + 6.0417 * 5
+densidade(10) = densidade = -5.2750 + 6.0417 * 10
+densidade(11) = densidade = -5.2750 + 6.0417 * 11
+densidade(12) = densidade = -5.2750 + 6.0417 * 12
+
 ```{r modelo1}
 modelo1= lm(df$densidade ~ df$tempo)
 summary(modelo1)
+```
+
+```{r previsao}
+df$previsao_linear <- -5.2750 + 6.0417 * df$tempo
+df$residuo <- df$densidade - df$previsao_linear
 ```
