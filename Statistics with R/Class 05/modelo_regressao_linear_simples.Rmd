@@ -68,3 +68,11 @@ summary(modelo1)
 df$previsao_linear <- -5.2750 + 6.0417 * df$tempo
 df$residuo <- df$densidade - df$previsao_linear
 ```
+
+Grafico de dispersao
+
+```{r grafico2}
+plot(df$tempo, df$densidade, type="o", col="blue", pch="👀", ylab="Densidade", lty=1)
+points(df$tempo, df$previsao_linear, col="red", pch = "😍")
+lines(df$tempo, df$previsao_linear, col="red", lty=2)
+```
