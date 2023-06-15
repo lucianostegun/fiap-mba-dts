@@ -21,7 +21,7 @@ library(forecast)
 
 # Importar os dados
 library(readr)
-df <- read_delim("E:/DTS7/Aula06/Vendas_2016a2018.csv", 
+df <- read_delim("C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 06/modelo2/Vendas_2016a2018.csv", 
                  delim = ";", escape_double = FALSE, trim_ws = TRUE)
 View(df)
 
@@ -88,7 +88,7 @@ shapiro.test(residuals(modelo))
 
 # Importar os Vendas
 library(readr)
-Budget_2019 <- read_csv("E:/DTS7/Aula06/Budget_2019.csv")
+Budget_2019 <- read_csv("C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 06/modelo2/Budget_2019.csv")
 
 
 summary(Budget_2019)
