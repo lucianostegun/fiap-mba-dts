@@ -17,7 +17,7 @@ Identificar quais são os principais fatores que fazem as pessoas alugarem mais 
 
 ## Dicionario de variaveis
 
-![Figura 1.](C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/dic_bike.png)
+![Figura 1.](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 07/dic_bike.png)
 ```{r pacotes}
 library(tidyverse)
 library(ggplot2)
@@ -31,7 +31,7 @@ library(dplyr)
 options(scipen = 999)
 
 library(readr)
-df <- read_csv("C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/Bike_Sharing.csv")
+df <- read_csv("C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 07/Bike_Sharing.csv")
 
 
 ```
@@ -359,10 +359,10 @@ CrossTable(df1$fxcnt_cat,df1$season_label, prop.r = FALSE, prop.c = FALSE, prop.
 
 
 
-![Figura 2.](C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/figura2_quiquadrado_Bike.png)
+![Figura 2.](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 07//figura2_quiquadrado_Bike.png)
 
 
-![Figura 3](C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/calculo_quiquadrado_bike.png)
+![Figura 3](C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/Class 07//calculo_quiquadrado_bike.png)
 
 
 
