@@ -1,0 +1,747 @@
+---
+title: "Modelo de regressao linear multipla"
+author: "Regina Bernal"
+date: "03/06/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+# Objetivo do modelo
+
+Identificar quais são os principais fatores que fazem as pessoas alugarem mais bicicletas, para que como organização possamos traçar o plano de logística de disponibilização, plano de manutenção e aquisição de novos ativos.
+
+
+## Dicionario de variaveis
+
+![Figura 1.](C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/dic_bike.png)
+```{r pacotes}
+library(tidyverse)
+library(ggplot2)
+library(summarytools)
+library(gmodels)
+library(dplyr)
+```
+
+```{r dados}
+# nao mostrar os resultados na notacao cientifica
+options(scipen = 999)
+
+library(readr)
+df <- read_csv("C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/Bike_Sharing.csv")
+
+
+```
+
+### Mudar as variaveis quantitativas em qualitativas
+
+```{r}
+df$season <- factor(df$season,ordered = TRUE)
+df$yr <- factor(df$yr)
+df$mnth <- factor(df$mnth,ordered = TRUE)
+df$holiday <- factor(df$holiday)
+df$weekday <- factor(df$weekday, ordered = TRUE)
+df$workingday <- factor(df$workingday)
+df$weathersit <- factor(df$weathersit)
+
+```
+
+### Analise descritiva
+
+Conhecer as variaveis
+
+```{r descritiva}
+# medidas resumo
+summary(df)
+```
+
+### Grafico univariado
+
+```{r grafico1}
+# grafico de uma variavel quantitativa
+qplot(x=df$cnt)
+```
+
+```{r grafico2}
+# grafico de uma variavel qualitativa
+qplot(x=df$season, geom = "bar")
+```
+### Gráfico bivariado
+
+```{r grafico3}
+# grafico de duas variaveis quantitativas 
+qplot(x=df$temp, y=df$cnt)
+```
+
+
+```{r grafico 4}
+# grafico de uma variavel quantitativa e uma qualitativa
+boxplot(df$cnt ~ df$season)
+```
+
+```{r grafico5}
+boxplot(df$cnt ~ df$weekday)
+```
+
+
+
+```{r grafico8}
+g <- ggplot(df)
+g + geom_violin(aes(cnt,season)) + geom_jitter((aes(cnt,season))) + coord_flip() +
+   coord_cartesian(xlim=c(0,9000))
+```
+
+
+```{r grafico6}
+boxplot(df$cnt ~df$holiday)
+```
+
+### Grafico de dispersão entre duas variaveis quantitativas e terceira variável qualitativa
+
+```{r grafico7}
+qplot(cnt, temp, data=df, shape = season, color = season)
+
+```
+
+### Gráfico com três variáveis
+
+```{r grafico9}
+# facet_grid
+
+g <- ggplot(df)
+g + geom_boxplot(aes(cnt,season))+ coord_flip()+facet_grid(~weathersit)
+
+```
+
+
+```{r grafico10}
+g <- ggplot(df)
+g + geom_boxplot(aes(cnt,season))+ coord_flip()+facet_grid(weathersit~.)
+
+```
+
+
+```{r grafico11}
+g <- ggplot(df)
+g + geom_boxplot(aes(cnt,season))+ coord_flip()+facet_grid(~yr)
+
+
+```
+
+```{r grafico12}
+g <- ggplot(df)
+g + geom_boxplot(aes(cnt,season))+ coord_flip()+facet_grid(weathersit~yr)
+```
+
+
+### Análise de correlacao de Pearson
+
+```{r correlacao}
+# selecionar somente as variaveis quantitativas
+dadosquant <- df %>%
+  select(temp,atemp,hum,windspeed,cnt)
+
+correlacao <- cor(dadosquant)
+correlacao
+
+mc <- correlacao
+```
+
+```{r grafico13}
+library(corrplot)
+#corrplot(mc)
+corrplot(mc, type="upper", method="number")
+```
+
+```{r grafico14}
+library(Hmisc)
+mcorr = rcorr(as.matrix(dadosquant));mcorr
+mcorr$r # correlacao
+mcorr$P # p-valor
+mcorr$n # numero de observacoes
+
+
+library(PerformanceAnalytics)
+
+chart.Correlation(dadosquant,histogram=TRUE)
+
+```
+
+-------------------------------------------------------------------------------------
+## Analise de uma variavel quantitativa versus variavel qualitativa
+-------------------------------------------------------------------------------------
+
+Analise da variavel cnt vs season, weekday, weathersit, workingday, holiday, month e yr
+
+Primeiro passo: transformar a variavel quantitativa (cnt) em uma qualitativa (faixa de cnt)
+
+Criterio: quartis
+
+```{r cnt}
+summary(df$cnt)
+```
+minimo = 22
+quartil1 = 3152
+quartil2 = 4548
+quartil3 = 5956
+maximo 8714
+
+
+ntile() é uma função do dplyr para criar categorias usando os quartis.
+
+```{r faixa}
+
+df1 <- df
+
+# Criar a variavel faixa de cnt
+df1$fxcnt_num <- ntile(df$cnt, 4)  
+df1$fxcnt_cat <- factor(df1$fxcnt_num, levels=c(1,2,3,4),labels = c(labels=c("[ 22 a 3152]",                                                           "(3152 a 4548]",
+                                          "(4548 a 5956]",                                                                                             "(5956 a 8714]")))
+df1$fxcnt_cat <- factor(df1$fxcnt_cat, ordered =TRUE)
+freq(df1$fxcnt_cat)
+
+```
+
+
+---------------------------------------------------------------------------------
+## Teste Qui-Quadrado
+---------------------------------------------------------------------------------
+
+Análise bivariada cnt vs season
+
+Interpretação da tabela 1: Número absoluto
+
+No total temos 731 dias.
+Row Total -> mostra a distribuição dos dias segundo a demanda (cnt) de bikes:
+- 183 dias foram alugadas de 22 a 3152 bikes;
+- 183 dias foram alugadas de 3152 a 4548 bikes;
+- 183 dias foram alugadas de 4548 a 5956 bikes;
+- 182 dias foram alugadas de 5956 a 8714 bikes.
+
+Na primeira linha da faixa de demanda entre 22 e 3152 bikes temos:
+- 122 dias de inverno;
+-  28 dias de primavera;
+-   4 dias de verão;
+-  29 dias de outono.
+
+Column Total >- mostra a distribuição dos dias segundo a estação do ano (season)
+- 181 dias de inverno;
+- 184 dias de primavera;
+- 188 dias de verão;
+- 178 dias de outno.
+
+
+```{r tabela1a}
+df1$season_label <- factor(df1$season, levels=c(1,2,3,4),labels = c(labels=c("Inverno",
+                                                                     "Primavera",
+                                                                      "Verao",
+                                                                      "Outono")))
+
+CrossTable(df1$fxcnt_cat,df1$season_label, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE,
+           prop.chisq = FALSE,chisq = FALSE)
+
+```
+
+Interpretação da tabela 2: Número absoluto e proporção na linha
+
+No total temos 731 dias.
+
+Row Total >- mostra a distribuição dos dias segundo a demanda (cnt)
+- 183 dias foram alugadas de 22 a 3152 bikes;
+- 183 dias foram alugadas de 3152 a 4548 bikes;
+- 183 dias foram alugadas de 4548 a 5956 bikes;
+- 182 dias foram alugadas de 5956 a 8714 bikes.
+
+Na primeira linha da faixa de demanda entre 22 e 3152 bikes temos:
+- 122 (0.674) dias de inverno;
+-  28 (0.152) dias de primavera;
+-   4 (0.021) dias de verão;
+-  29 (0.163) dias de outono.
+
+Na segunda linha:
+- 43 (0.238) dias de inverno;
+- 43 (0.234) dias de primavera;
+- 41 (0.218) dias de verão;
+- 56 (0.315) dias de outono.
+
+
+Column Total -> mostra a distribuição dos dias segundo a estação do ano (season):
+- 181 (0.248) dias de inverno;
+- 184 (0.252) dias de primavera;
+- 188 (0.257) dias de verão;
+- 178 (0.244) dias de outono.
+
+
+
+
+
+
+```{r tabela1b}
+df1$season_label <- factor(df1$season, levels=c(1,2,3,4),labels = c(labels=c("Inverno",
+                                                                     "Primavera",
+                                                                      "Verao",
+                                                                      "Outono")))
+
+CrossTable(df1$fxcnt_cat,df1$season_label, prop.r = TRUE, prop.c = FALSE, prop.t = FALSE,
+           prop.chisq = FALSE,chisq = FALSE)
+
+
+```
+
+
+
+Interpretação do gráfico 1:
+
+
+A última coluna do gráfico mostra a distribuição dos dias segundo a demanda (cnt) de bikes. Essa proporção pode ser interpretada como uma média.
+
+Na comparação entre cada coluna do gráfico com o total, nota-se que a distribuição é diferente.
+Ou seja, a demanda de bikes depende da estação do ano.
+
+Na comparação entre a primeira faixa de cnt (22 a 3152) e a última (total), nota-se que
+a distribuição dos dias é diferente do total. Existe uma concentração dos dias no inverso quando comparada ao total dos dias.
+
+```{r grafico15}
+# frequencia de season
+freq_total <- df1 %>%
+  select(fxcnt_cat) %>%
+  group_by(fxcnt_cat) %>%
+  summarise(obs = n()) %>%
+  mutate(freq = obs/sum(obs)*100) %>%
+  mutate(season_label = ifelse(fxcnt_cat =="[ 22 a 3152]", "Inverno",
+                               ifelse(fxcnt_cat =="(3152 a 4548]","Primavera",
+                                      ifelse(fxcnt_cat =="(4548 a 5956]","Verao","Outono")))) %>%
+  mutate(fxcnt_num=5) %>%
+  relocate(fxcnt_num, .before = fxcnt_cat) %>%
+  relocate(season_label, .after = fxcnt_cat) 
+  
+
+# frequencia de season por faixa de cnt
+freq_fxcnt <- df1 %>%
+  select(fxcnt_num, fxcnt_cat,season_label) %>%
+  group_by(fxcnt_num, fxcnt_cat,season_label) %>%
+  summarise(obs = n()) %>%
+  mutate(freq = obs/sum(obs)*100)
+  
+# append  
+freq <- rbind(freq_fxcnt,freq_total)  
+
+
+ggplot(freq, aes(x = fxcnt_num, y = freq, fill = season_label, label = round(freq, 1))) +
+  geom_col() +
+  geom_text(position = position_stack(vjust = 0.5)) +
+  labs(title= "Demanda de bikes segundo a estacao do ano",
+            x= "CNT", y="%") 
+  
+```
+
+
+Interpretação da Tabela 3 (4 linhas e 4 colunas): Número observado e o número esperado
+
+Tabela 4 x 4 = 16 células
+
+Cálculo do número esperado
+
+```{r tabela1c}
+df1$season_label <- factor(df1$season, levels=c(1,2,3,4),labels = c(labels=c("Inverno",
+                                                                     "Primavera",
+                                                                      "Verao",
+                                                                      "Outono")))
+
+CrossTable(df1$fxcnt_cat,df1$season_label, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE,
+           expected = TRUE,prop.chisq = FALSE, chisq = FALSE)
+
+
+```
+
+
+
+![Figura 2.](C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/figura2_quiquadrado_Bike.png)
+
+
+![Figura 3](C:/Users/regin/FIAP/DTSR/3DTSR/Aula07/calculo_quiquadrado_bike.png)
+
+
+
+
+
+
+Análise de associação entre cnt e weekday
+
+Conclusão: p_valor > 0,05. Logo, não existe associação. Ou seja, a demanda de bikes não depende do dia da semana.
+
+
+```{r tabela2}
+CrossTable(df1$fxcnt_cat,df1$weekday, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE,
+           expected = FALSE,prop.chisq = FALSE, chisq = TRUE)
+```
+```{r grafico16}
+
+# frequencia de season por faixa de cnt
+freq_fxcnt <- df1 %>%
+  select(fxcnt_num, fxcnt_cat,weekday) %>%
+  group_by(fxcnt_num, fxcnt_cat,weekday) %>%
+  summarise(obs = n()) %>%
+  mutate(freq = obs/sum(obs)*100)
+  
+# append  
+freq <- freq_fxcnt  
+
+
+ggplot(freq, aes(x = weekday , y = freq, fill = fxcnt_num, label = round(freq, 1))) +
+  geom_col() +
+  geom_text(position = position_stack(vjust = 0.5)) +
+  labs(title= "Demanda de bikes segundo a estacao do ano",
+            x= "CNT", y="%") 
+```
+
+
+
+```{r grafico17}
+boxplot(df1$cnt ~ df1$weekday)
+```
+
+### Criar as variáveis dummies 
+
+```{r dummies}
+
+df$season2 = ifelse(df$season==2,"1","0")
+df$season3 = ifelse(df$season==3,"1","0")
+df$season4 = ifelse(df$season==4,"1","0")
+df$weekday1 = ifelse(df$weekday == 1,"1","0")
+df$weekday2 = ifelse(df$weekday == 2,"1","0")
+df$weekday3 = ifelse(df$weekday == 3,"1","0")
+df$weekday4 = ifelse(df$weekday == 4,"1","0")
+df$weekday5 = ifelse(df$weekday == 5,"1","0")
+df$weekday6 = ifelse(df$weekday == 6,"1","0")
+df$weathersit2 =ifelse(df$weathersit==2,"1","0")
+df$weathersit3 =ifelse(df$weathersit==3,"1","0")
+df$mnth2 =ifelse(df$mnth==2,"1","0")
+df$mnth3 =ifelse(df$mnth==3,"1","0")
+df$mnth4 =ifelse(df$mnth==4,"1","0")
+df$mnth5 =ifelse(df$mnth==5,"1","0")
+df$mnth6 =ifelse(df$mnth==6,"1","0")
+df$mnth7 =ifelse(df$mnth==7,"1","0")
+df$mnth8 =ifelse(df$mnth==8,"1","0")
+df$mnth9 =ifelse(df$mnth==9,"1","0")
+df$mnth10 =ifelse(df$mnth==10,"1","0")
+df$mnth11 =ifelse(df$mnth==11,"1","0")
+df$mnth12 =ifelse(df$mnth==12,"1","0")
+
+names(df)
+```
+
+### Modelo de Regressão Linear Múltipla
+
+```{r base_modelo}
+# selecao das variaveis para o modelo
+df_modelo <- df 
+  
+df_modelo$instant = NULL
+df_modelo$dteday= NULL
+df_modelo$season= NULL
+df_modelo$mnth= NULL
+df_modelo$weekday= NULL
+df_modelo$weathersit= NULL
+df_modelo$registered= NULL
+df_modelo$casual= NULL
+
+
+names(df_modelo)
+
+```
+### Dividir a amostra em treino e validação
+
+```{r amostras}
+
+#Dividir em duas amostras
+set.seed(2021)
+train <- sample(nrow(df_modelo), 0.7*nrow(df_modelo), replace = FALSE)
+TrainSet <- df_modelo[train,]
+ValidSet <- df_modelo[-train,]
+
+```
+
+### Comparar a variável resposta nas duas amostras
+
+```{r amostra1}
+summary(TrainSet$cnt)
+
+```
+
+
+```{r amostra2}
+summary(ValidSet$cnt)
+```
+### Rodar o modelo
+
+```{r modelo1}
+modelo1 <- lm(cnt ~ temp, data = TrainSet)
+summary(modelo1)
+```
+
+
+```{r modelo2a}
+modelo2a <- lm(cnt ~ temp + atemp + temp*atemp, data = TrainSet)
+summary(modelo2a)
+```
+
+
+
+```{r modelo2b}
+modelo2b <- lm(cnt ~ temp + hum, data = TrainSet)
+summary(modelo2b)
+```
+
+
+```{r modelo3}
+modelo3 <- lm(cnt ~ ., data = TrainSet)
+summary(modelo3)
+```
+
+```{r modelo3_setpwise }
+modelo3_stepwise<-step(modelo3,direction="both")
+summary(modelo3_stepwise)
+
+```
+
+
+```{r previsao1}
+
+TrainSet$Val_pred <- predict(modelo3_stepwise) 
+TrainSet$residuo  <- resid(modelo3_stepwise)
+TrainSet$rp <- rstandard(modelo3_stepwise)
+
+```
+
+```{r rmse1}
+# Erro quadratico medio na amostra de treino
+mse <- mean((TrainSet$cnt - TrainSet$Val_pred)^2)
+sqrt(mse)
+
+```
+### Análise dos resíduos do modelo
+
+```{r residuo1}
+plot(predict(modelo3_stepwise),TrainSet$residuo, xlab = "Preditor linear",ylab = "Residuos")
+abline(h = 0, lty = 2)
+
+```
+
+```{r normalidade1}
+qqnorm(residuals(modelo3_stepwise), ylab="Residuos",xlab="Quantis teoricos",main="")
+qqline(residuals(modelo3_stepwise))
+```
+
+```{r testeShapiro1}
+#Teste de Normalidade de Shapiro Wilk
+
+# sE Valor P do teste eh pequeno, rejeita-se a hipotese de normalidade dos residuos e,
+# por consequencia, conclui-se que os erros nao sao normalmente distribuidos.
+
+# Teste de hipoteses
+# H0: Distribuicao Normal
+# H1: Distribuicao diferente da Normal
+# Criterio de decisao: Se p-valor < 0,05 entao rejeito H0 
+#                      Se p-valor >= 0,05 entao nao rejeito H0
+
+shapiro.test(residuals(modelo3_stepwise))
+```
+### Excluir os outliers
+
+```{r excluir_outlier1}
+
+#Excluir os outliers
+TrainSet_1 <-filter(TrainSet,TrainSet$rp>=-2&TrainSet$rp<=2) 
+
+#Pre-processamento dos dados
+# Apaga a coluna 
+TrainSet_1$Val_pred = NULL
+TrainSet_1$residuo = NULL
+TrainSet_1$rp = NULL
+```
+
+
+### Segunda rodada do modelo
+
+```{r modelo4}
+
+# Regressao linear multipla
+modelo4 <- lm(cnt ~ . ,data=TrainSet_1) 
+summary(modelo4)
+
+modelo4_stepwise<-step(modelo4,direction="both")
+summary(modelo4_stepwise)
+
+TrainSet_1$Val_pred <- predict(modelo4_stepwise) 
+TrainSet_1$residuo  <- resid(modelo4_stepwise)
+TrainSet_1$rp <- rstandard(modelo4_stepwise)
+
+```
+
+```{r rmse2}
+# Erro quadratico medio na amostra de treino
+mse_1 <- mean((TrainSet_1$cnt - TrainSet_1$Val_pred)^2)
+sqrt(mse_1)
+
+```
+### Análise dos resíduos do segundo modelo
+```{r residuo2a}
+
+# grafico residuo
+plot(predict(modelo4_stepwise),TrainSet_1$residuo, xlab = "Preditor linear",ylab = "Residuos")
+abline(h = 0, lty = 2)
+
+```
+
+
+
+```{r residuo2b}
+#observar SE violacao da suposicao de que os erros aleatarios tem distribuicao Normal
+
+qqnorm(residuals(modelo4_stepwise), ylab="Residuos",xlab="Quantis teoricos",main="")
+qqline(residuals(modelo4_stepwise))
+
+```
+
+```{r residuo2c}
+#Teste de Normalidade de Shapiro Wilk
+
+# sE Valor P do teste eh pequeno, rejeita-se a hipotese de normalidade dos residuos e,
+# por consequencia, conclui-se que os erros nao sao normalmente distribuidos.
+
+# Teste de hipoteses
+# H0: Distribuicao Normal
+# H1: Distribuicao diferente da Normal
+
+shapiro.test(residuals(modelo4_stepwise))
+```
+
+### Análise dos outliers do segundo modelo
+
+```{r excluir_outliers2}
+
+#Excluir os outliers
+TrainSet_2 <-filter(TrainSet_1,TrainSet_1$rp>=-2&TrainSet_1$rp<=2) 
+
+
+#Pre-processamento dos dados
+# Apaga a coluna 
+TrainSet_2$Val_pred = NULL
+TrainSet_2$residuo = NULL
+TrainSet_2$rp = NULL
+```
+
+### Rodar o terceiro modelo
+
+```{r modelo5}
+# Regressao linear multipla
+modelo5 <- lm(cnt ~ . ,data=TrainSet_2)
+summary(modelo5)
+
+modelo5_stepwise<-step(modelo5,direction="both")
+summary(modelo5_stepwise)
+
+TrainSet_2$Val_pred <- predict(modelo5_stepwise) 
+TrainSet_2$residuo  <- resid(modelo5_stepwise)
+TrainSet_2$rp <- rstandard(modelo5_stepwise)
+```
+
+
+
+```{r rmse3}
+# Erro quadratico medio na amostra de treino
+mse_2 <- mean((TrainSet_2$cnt - TrainSet_2$Val_pred)^2)
+sqrt(mse_2)
+
+```
+
+### Análise dos resíduos do terceiro modelo
+
+```{r residuo3a}
+
+# grafico residuo
+plot(predict(modelo5_stepwise),TrainSet_2$residuo, xlab = "Preditor linear",ylab = "Residuos")
+abline(h = 0, lty = 2)
+
+```
+
+
+
+```{r residuo3b}
+
+
+#observar SE violacao da suposicao de que os erros aleatarios tem distribuicao Normal
+
+qqnorm(residuals(modelo5_stepwise), ylab="Residuos",xlab="Quantis teoricos",main="")
+qqline(residuals(modelo5_stepwise))
+
+```
+
+
+
+```{r residuo3c}
+
+
+#Teste de Normalidade de Shapiro Wilk
+
+# sE Valor P do teste eh pequeno, rejeita-se a hipotese de normalidade dos residuos e,
+# por consequencia, conclui-se que os erros nao sao normalmente distribuidos.
+
+# Teste de hipoteses
+# H0: Distribuicao Normal
+# H1: Distribuicao diferente da Normal
+
+shapiro.test(residuals(modelo5_stepwise))
+
+```
+
+##---------------------------------------------------------------------------------------
+##                           AMOSTRA DE VALIDACAO
+##---------------------------------------------------------------------------------------
+
+
+```{r amostra_validacao}
+
+# Amostra de validacao
+
+cnt_pred <- predict(modelo5,interval = "prediction", level = 0.95,
+                    newdata = ValidSet, se.fit = T) 
+
+cnt_pred1 <-cnt_pred$fit
+ValidSet_pred=cbind(ValidSet,cnt_pred1)
+```
+
+
+```{r residuo_validacao}
+# Residuo na amostra de validacao
+residuo_valid <- ValidSet_pred$cnt - ValidSet_pred$fit
+hist(residuo_valid)
+qqnorm(residuo_valid, ylab="Res?duos",xlab="Quantis te?ricos",main="")
+qqline(residuo_valid)
+```
+
+
+
+```{r rmse_validacao}
+
+# Erro quadratico medio na amostra de validacao
+mse2 <- mean((ValidSet_pred$cnt - ValidSet_pred$fit)^2)
+sqrt(mse2)
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
