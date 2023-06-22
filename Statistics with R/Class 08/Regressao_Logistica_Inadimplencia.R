@@ -152,8 +152,6 @@ summary(ValidSet$predito)
 
 hist(predito)
 
-
-
 ValidSet$fx_predito <- cut(ValidSet$predito, breaks=c(0, 0.50, 1), right=F)
 
 ### Matriz de confusao na amostra validacao
