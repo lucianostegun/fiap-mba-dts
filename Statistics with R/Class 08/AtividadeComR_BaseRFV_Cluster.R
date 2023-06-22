@@ -6,7 +6,7 @@
 # Ler arquivo csv
 
 library(readr)
-BaseRFV <- read_delim("C:/Users/regin/FIAP/DTS/DTS7/Aula09/BaseRFV.csv", 
+BaseRFV <- read_delim("fiap-mba-dts/Statistics with R/Class 08/BaseRFV.csv", 
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
 View(BaseRFV)
 
@@ -152,9 +152,9 @@ Qte_iter
 
 
 # Mostrando Resultados
-aggregate(BaseRFV,by=list(segmento3),FUN=mean)
+aggregate(BaseRFV,by=list(BaseRFV$segmento3),FUN=mean)
 
-aggregate(BaseRFV,by=list(segmento3),FUN=sum)
+aggregate(BaseRFV,by=list(BaseRFV$segmento3),FUN=sum)
 # Mostrando Resultados em gr?ficos
 
 # Cluster Plot against 1st 2 principal components
@@ -172,7 +172,7 @@ plotcluster(Padr_BaseRFV, output_cluster_1$cluster)
 
 
 # junta os arquivos em colunas
-matriz<-cbind(BaseRFV,Padr_BaseRFV,segmento)
+matriz <- cbind(BaseRFV,Padr_BaseRFV,segmento)
 View(matriz)
 
 write.csv(BaseRFV,'BaseRFV_Cluster.csv')
