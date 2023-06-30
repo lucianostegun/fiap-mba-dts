@@ -9,33 +9,52 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r dados}
-library(readr)
-train <- read_csv("C:/Users/logonrmlocal/Documents/fiap-mba-dts/Statistics with R/projeto_integrado/train.csv")
+```{r pacotes}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(gmodels)
 ```
+
+```{r dados}
+rm(list=ls())
+library(readr)
+df <- read_csv("/Users/lucianostegun/Projetos/fiap-mba-dts/Statistics with R/projeto_integrado/train.csv")
+```
+1.  Importação dos dados
+2.  Limpeza + pré-processamento dos dados
+3.  Análise exploratória
+4.  Criação de gráficos e visualizações
+5.  Teste de hipóteses ou comparação de grupos
+6.  Ajuste de modelos estatísticos
+7.  Avaliação da qualidade do modelo
+8.  Interpretação dos resultados
+9.  Comunicação dos resultados de forma clara e concisa
+10. Documentação e reprodução da análise
 
 ```{r transformacao}
-train$`023c68873b` <- factor(train$`023c68873b`)
-train$`06888ceac9` <- factor(train$`06888ceac9`)
-train$`361f93f4d1` <- factor(train$`361f93f4d1`)
-train$`384bec5dd1` <- factor(train$`384bec5dd1`)
-train$`7cb7913148` <- factor(train$`7cb7913148`)
-train$`8d0606b150` <- factor(train$`8d0606b150`)
-train$`91145d159d` <- factor(train$`91145d159d`)
-train$`9a575e82a4` <- factor(train$`9a575e82a4`)
-train$`b835dfe10f` <- factor(train$`b835dfe10f`)
-train$`e16e640635` <- factor(train$`e16e640635`)
-train$`f1f0984934` <- factor(train$`f1f0984934`)
+df$`023c68873b` <- factor(df$`023c68873b`)
+df$`06888ceac9` <- factor(df$`06888ceac9`)
+df$`361f93f4d1` <- factor(df$`361f93f4d1`)
+df$`384bec5dd1` <- factor(df$`384bec5dd1`)
+df$`7cb7913148` <- factor(df$`7cb7913148`)
+df$`8d0606b150` <- factor(df$`8d0606b150`)
+df$`91145d159d` <- factor(df$`91145d159d`)
+df$`9a575e82a4` <- factor(df$`9a575e82a4`)
+df$`b835dfe10f` <- factor(df$`b835dfe10f`)
+df$`e16e640635` <- factor(df$`e16e640635`)
+df$`f1f0984934` <- factor(df$`f1f0984934`)
 ```
 
+### 5ª etapa: Faça a análise descritiva das variáveis. Apresente os gráficos e as medidas resumos.
 ```{r analise_descritiva}
-summary(train)
+summary(df)
 ```
 ### Análise de correlacao de Pearson
 
 ```{r correlacao}
 # selecionar somente as variaveis quantitativas
-dadosquant <- train %>%
+df_qtt <- df %>%
   select(`016399044a`,
 `0342faceb5`,
 `04e7268385`,
@@ -139,12 +158,44 @@ correlacao
 
 ```{r grafico_quantitativas}
 qplot(x=dadosquant$`253eb5ef11`, y=dadosquant$`target`)
+qplot(x=dadosquant$`ed7e658a27`, y=dadosquant$`target`)
+qplot(x=dadosquant$`e86a2190c1`, y=dadosquant$`target`)
 qplot(x=dadosquant$`8a21502326`, y=dadosquant$`target`)
 qplot(x=dadosquant$`96c30c7eef`, y=dadosquant$`target`)
-qplot(x=dadosquant$`aee1e4fc85`, y=dadosquant$`target`)
-qplot(x=dadosquant$`beb6e17af1`, y=dadosquant$`target`)
-qplot(x=dadosquant$`e86a2190c1`, y=dadosquant$`target`)
-qplot(x=dadosquant$`ed7e658a27`, y=dadosquant$`target`)
-qplot(x=dadosquant$`f66b98dd69`, y=dadosquant$`target`)
+qplot(x=dadosquant$`5b862c0a8f`, y=dadosquant$`target`)
 qplot(x=dadosquant$`fe8cdd80ba`, y=dadosquant$`target`)
+qplot(x=dadosquant$`beb6e17af1`, y=dadosquant$`target`)
+qplot(x=dadosquant$`6db53d265a`, y=dadosquant$`target`)
+qplot(x=dadosquant$`aee1e4fc85`, y=dadosquant$`target`)
+qplot(x=dadosquant$`f66b98dd69`, y=dadosquant$`target`)
+qplot(x=dadosquant$`2719b72c0d`, y=dadosquant$`target`)
+```
+
+```{r treino}
+df_treino = subset(df, select=c(`253eb5ef11`, `ed7e658a27`, `e86a2190c1`, `8a21502326`, `96c30c7eef`, `5b862c0a8f`, `fe8cdd80ba`, `beb6e17af1`, `6db53d265a`, `aee1e4fc85`, `f66b98dd69`, `2719b72c0d`))
+```
+
+### 6ª etapa: Faça a análise bivariada das variáveis qualitativas. 
+#### 6 a)	Tabela de frequência bivariada.
+#### 6 b)	Teste Qui-quadrado.
+#### 6 c)	Gráfico 100% empilhado.
+
+```{r grafico bivariado}
+table(df$`023c68873b`
+table(df$`06888ceac9`)
+table(df$`361f93f4d1`)
+table(df$`384bec5dd1`)
+table(df$`7cb7913148`)
+table(df$`8d0606b150`)
+table(df$`91145d159d`)
+table(df$`9a575e82a4`)
+table(df$`b835dfe10f`)
+table(df$`e16e640635`)
+table(df$`f1f0984934`)
+```
+
+
+```{r qui-quadrado}
+CrossTable(df$`f1f0984934`,df$`f1f0984934`, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE,
+           prop.chisq = FALSE,chisq = FALSE)
 ```
