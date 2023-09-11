@@ -1,0 +1,376 @@
+---
+title: "Projeto Integrado - Estatística com R"
+author: "Luciano Stegun"
+date: "2023-06-17"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Importando pacotes e carregando as bibliotecas
+```{r packages}
+# Lista de pacotes
+packages <- c("tidyverse", "summarytools", "fastDummies", "ROCit", "gmodels", "caret", "ggplot2")
+
+# Verifica e instala pacotes não presentes
+lapply(packages, function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x, repos="https://cloud.r-project.org/")
+  }
+})
+
+lapply(packages, library, character.only = TRUE)
+library(corrplot) 
+```
+
+# Carregando os dados
+```{r data}
+options(scipen = 999) # não mostrar os resultados na notação científica
+
+df_train <- read_csv("train.csv")
+df_test <- read_csv("test.csv")
+
+```
+
+# Função auxiliares para execução do stepwise
+```{r auxiliar_functions}
+fit_model <- function(data) {
+    model <- lm(target ~ ., data = data)
+    model_stepwise <- step(model, direction = "both")
+    return(model_stepwise)
+}
+
+# Função para adicionar previsões e resíduos ao conjunto de treinamento
+add_predictions_residues <- function(data, model) {
+    data$Val_pred <- predict(model) 
+    data$residuo  <- resid(model)
+    data$rp <- rstandard(model)
+    return(data)
+}
+
+# Função para plotar os resíduos
+plot_residues <- function(data, model) {
+    plot(predict(model), data$residuo, xlab = "Preditor linear", ylab = "Residuos")
+    abline(h = 0, lty = 2)
+
+    # Observar a violação da suposição de que os erros aleatórios têm distribuição Normal
+    qqnorm(residuals(model), ylab = "Residuos", xlab = "Quantis teoricos", main = "")
+    qqline(residuals(model))
+}
+
+# Função para plotar a relação entre várias variáveis e o alvo
+plot_relationship <- function(data, target_var) {
+    variable_names <- names(data)[names(data) != target_var]
+    for (var_name in variable_names) {
+        qplot(x = data[[var_name]], y = data[[target_var]])
+    }
+}
+```
+
+# Transformando variáveis qualitativas
+```{r variable_converting}
+df_train_model_quali = subset(df_train ,select = c(`06888ceac9`,`384bec5dd1`, `7cb7913148`, `9a575e82a4`))
+df_train$`023c68873b` <- factor(df_train$`023c68873b`)
+df_train$`06888ceac9` <- factor(df_train$`06888ceac9`)
+df_train$`361f93f4d1` <- factor(df_train$`361f93f4d1`)
+df_train$`384bec5dd1` <- factor(df_train$`384bec5dd1`)
+df_train$`7cb7913148` <- factor(df_train$`7cb7913148`)
+df_train$`8d0606b150` <- factor(df_train$`8d0606b150`)
+df_train$`91145d159d` <- factor(df_train$`91145d159d`)
+df_train$`9a575e82a4` <- factor(df_train$`9a575e82a4`)
+df_train$`b835dfe10f` <- factor(df_train$`b835dfe10f`)
+df_train$`e16e640635` <- factor(df_train$`e16e640635`)
+df_train$`f1f0984934` <- factor(df_train$`f1f0984934`)
+df_train$id <- factor(df_train$id)
+
+```
+
+# Resumo das variáveis
+```{r summary}
+summary(df_train)
+```
+
+
+# Análise de correlação
+```{r correlation} 
+# Selecionando somente variáveis quantitativas
+quant_vars <- names(df_train)[sapply(df_train, is.numeric)]
+dadosquant <- df_train %>% select(all_of(quant_vars))
+
+correlacao <- cor(dadosquant, dadosquant$target)
+correlacao
+
+mc <- correlacao
+```
+
+```{r df_train_model}
+df_train_quanti <- subset(df_train, select = c(`2719b72c0d`,`f66b98dd69`,`aee1e4fc85`,`96c30c7eef`,`8a21502326`,`e86a2190c1`,`ed7e658a27`,`253eb5ef11`,`fe8cdd80ba`,`6db53d265a`,`5b862c0a8f`,
+`beb6e17af1`,`e0a0772df0`,`7841b6a5b1`,`d2c775fa99`,`8c2e088a3d`,`2d7fe4693a`,`174825d438`,`8f5f7c556a`,`ea0f4a32e3`,`5f360995ef`,`f013b60e50`,`7fe6cb4c98`,`087235d61e`,`87b982928b`,`a14fd026ce`,
+`2bc6ab42f7`,`96e6f0be58`,`3df2300fa2`,`c0c3df65b1`,`016399044a`,`1f3058af83`,`136c1727c3`,`c1b8ce2354`,`3eb53ae932`,`98475257f7`,`65aed7dc1f`,`fe0318e273`,`56371466d7`,`f0a0febd35`,`60ec1426ce`,
+`ae08d2297e`,`bdf934caa7`,`6516422788`,`ffd1cdcfc1`,`49756d8e0f`,`63bcf89b1d`,`1fa099bb01`,`435dec85e2`,`d4d6566f9c`,`04e7268385`,`8311343404`,`e7ee22effb`,`298ed82b22`,`25bbf0e7e7`,`abca7a848f`,
+`29bbd86997`,`e5efa4d39a`,`55907cc1de`,`1f222e3669`,`789b5244a9`,`2e874bc151`,`dcfcbc2ea1`,`2a457d15d9`,`d035af6ffa`,`fbf66c8021`,`77b3b41efa`,`fdf8628ca7`,`b4112a94a6`,`8de0382f02`,`173b6590ae`,
+`3e200bf766`,`072b7e8f27`,`a24802caa5`,`12eda2d982`,`c58f611921`,`99d44111c9`,`20f1afc5c7`,`0b846350ef`,`9b6e0b36c2`,`779d13189e`,`0342faceb5`,`ac826f0013`,`ba54a2a637`,`7925993f42`,`7734c0c22f`,
+`b709f75447`,`4468394575`,`4fc17427c8`,`b9a487ac3c`,`ee2ac696ff`,`55cf3f7627`,`0e2ab0831c`,`aa69c802b6`,`7743f273c2`,`target`))
+
+df_train_model_quali = subset(df_train ,select = c(`06888ceac9`,`384bec5dd1`, `7cb7913148`, `9a575e82a4`))
+
+
+var_dummies <- dummy_cols(df_train_model_quali,
+           remove_first_dummy = TRUE,
+           remove_selected_columns = TRUE)
+```
+
+# Resumo estatístico da variável target
+```{r quanti_division}
+summary(df_train$target)
+```
+
+# Criação da variável faixa de target
+```{r target_range}
+df1 <- df_train
+df1$fxcnt_num <- ntile(df_train$target, 4)  
+df1$fxcnt_cat <- factor(df1$fxcnt_num, levels=c(1,2,3,4),labels = c("[ -0.2398 a 0.5031]", "(0.5031 a 0.9838]", "(0.9838 a 1.9680]", "(1.9680 a 61.3261 ]"))
+df1$fxcnt_cat <- factor(df1$fxcnt_cat, ordered = TRUE)
+
+# Frequência da nova variável categórica criada
+freq(df1$fxcnt_cat)
+
+```
+
+# Tabelas cruzadas entre a variável de faixa de target e as variáveis qualitativas
+```{r tabela}
+CrossTable(df1$fxcnt_cat, df1$`06888ceac9`, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE, prop.chisq = FALSE, chisq = TRUE)
+CrossTable(df1$fxcnt_cat, df1$`384bec5dd1`, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE, prop.chisq = FALSE, chisq = TRUE)
+CrossTable(df1$fxcnt_cat, df1$`7cb7913148`, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE, prop.chisq = FALSE, chisq = TRUE)
+CrossTable(df1$fxcnt_cat, df1$`9a575e82a4`, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE, prop.chisq = FALSE, chisq = TRUE)
+```
+
+# Vetor com os nomes das variáveis qualitativas
+```{r pile_bar_chart}
+var_names <- names(df_train_model_quali)
+
+# criando um dataframe vazio para armazenar os valores no formato "long"
+df_quali_long <- data.frame()
+
+# transformando as variáveis qualitativas em um formato "long"
+for (var in var_names) {
+ var_long <- data.frame(Variável = rep(var, each = nrow(df_train_model_quali)), Valor = unlist(df_train_model_quali[var]))
+ df_quali_long <- rbind(df_quali_long, var_long)
+}
+
+# calculando as frequências relativas das categorias
+df_quali_freq <- prop.table(table(df_quali_long$Variável, df_quali_long$Valor), 1)
+
+# criando um gráfico de barras 100% empilhadas usando ggplot2
+ggplot(df_quali_long, aes(x = Variável, fill = Valor)) +
+ geom_bar(position = "fill") +
+ scale_fill_discrete(name = "Valor") +
+ labs(x = "Variável", y = "Proporção", title = "Gráfico de Barras 100% Empilhadas") +
+ theme_bw() +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+```
+
+# Gráfico scatter plot entre as variaveis mais significativas por correlacao de pearson e variavel resposta target
+```{r qplot_chart} 
+qplot(x=df_train$`253eb5ef11`, y=df_train$target)
+qplot(x=df_train$`2719b72c0d`, y=df_train$target)
+qplot(x=df_train$`5b862c0a8f`, y=df_train$target)
+qplot(x=df_train$`6db53d265a`, y=df_train$target)
+qplot(x=df_train$`8a21502326`, y=df_train$target)
+qplot(x=df_train$`96c30c7eef`, y=df_train$target)
+qplot(x=df_train$`aee1e4fc85`, y=df_train$target)
+qplot(x=df_train$`beb6e17af1`, y=df_train$target)
+qplot(x=df_train$`e86a2190c1`, y=df_train$target)
+qplot(x=df_train$`ed7e658a27`, y=df_train$target)
+qplot(x=df_train$`f66b98dd69`, y=df_train$target)
+qplot(x=df_train$`fe8cdd80ba`, y=df_train$target)
+```
+
+# Gráfico de correlação entre as variáveis
+```{r corrplot_chart}
+corrplot(mc)
+```
+
+# Combinando variáveis de interesse
+```{r df_bind}
+df_train_combined <- cbind(var_dummies,df_train_quanti)
+```
+
+# Dividindo os dados em conjunto de treino e validação
+```{r train_df}
+set.seed(1005)
+train <- sample(nrow(df_train_combined), 0.7*nrow(df_train_combined), replace = FALSE)
+TrainSet <- df_train_combined[train,]
+ValidSet <- df_train_combined[-train,]
+```
+
+# Ajuste do modelo de regressão linear com seleção de variáveis stepwise
+## 1a tentativa
+```{r stepwise_model_1}
+modelo1 <- fit_model(TrainSet)
+summary(modelo1)
+
+```
+
+# Previsões e resíduos ao conjunto de treinamento
+```{r predicting_model_1}
+TrainSet <- add_predictions_residues(TrainSet, modelo1)
+```
+
+# Remoção dos outliers
+```{r outlier_1_deletion}
+TrainSet_1 <-filter(TrainSet,TrainSet$rp>=-2&TrainSet$rp<=2) 
+
+# Pre-processamento dos dados
+# Apaga as colunas de previsões e resíduos
+TrainSet_1 <- subset(TrainSet_1, select = -c(Val_pred, residuo, rp))
+
+```
+
+# Ajuste do modelo de regressão linear com seleção de variáveis stepwise
+## 2a tentativa
+```{r stepwise_model_2}
+modelo2 <- fit_model(TrainSet_1)
+summary(modelo2)
+```
+
+# Adicionando previsões e resíduos ao conjunto de treinamento
+```{r predicting_model_2}
+TrainSet_1 <- add_predictions_residues(TrainSet, modelo1)
+```
+
+# Exclusão dos outliers
+## 2a tentativa
+```{r outlier_deletion_2}
+TrainSet_2 <- filter(TrainSet_1,TrainSet_1$rp>=-2&TrainSet_1$rp<=2) 
+
+# Apaga as colunas de previsões e resíduos
+TrainSet_2 <- subset(TrainSet_2, select = -c(Val_pred, residuo, rp))
+```
+
+# Ajuste do modelo de regressão linear com seleção de variáveis stepwise
+## 3a tentativa
+```{r stepwise_model_3}
+modelo3 <- fit_model(TrainSet_2)
+summary(modelo3)
+```
+
+# Adicionando previsões e resíduos ao conjunto de treinamento
+## 3a tentativa
+```{r prediction_model_3}
+TrainSet_2 <- add_predictions_residues(TrainSet_2, modelo3)
+```
+
+# Exclusão dos outliers
+## 3a tentativa
+```{r outlier_3_deletion}
+TrainSet_3 <- filter(TrainSet_2,TrainSet_2$rp>=-2&TrainSet_2$rp<=2)
+
+# Apaga as colunas de previsões e resíduos
+TrainSet_3 <- subset(TrainSet_3, select = -c(Val_pred, residuo, rp))
+```
+
+# Ajuste do modelo de regressão linear com seleção de variáveis stepwise
+## 4a tentativa
+```{r stepwise_model_4 }
+modelo4 <- fit_model(TrainSet_3)
+summary(modelo4)
+```
+
+# Adicionando previsões e resíduos ao conjunto de treinamento
+## 4a tentativa
+```{r prediction_3}
+TrainSet_3 <- add_predictions_residues(TrainSet_3, modelo4)
+```
+
+# Exclusão dos outliers
+## 4a tentativa
+```{r outlier_deletion_4}
+TrainSet_4 <- filter(TrainSet_3,TrainSet_3$rp>=-2&TrainSet_3$rp<=2) 
+
+# Apaga as colunas de previsões e resíduos
+TrainSet_4 <- subset(TrainSet_4, select = -c(Val_pred, residuo, rp))
+```
+
+# Ajuste do modelo de regressão linear com seleção de variáveis stepwise
+## 5a tentativa
+```{r stepwise_model_5 }
+modelo5 <- fit_model(TrainSet_4)
+```
+
+# Adicionando previsões e resíduos ao conjunto de treinamento
+## 5a tentativa
+```{r prediction_4}
+TrainSet_4 <- add_predictions_residues(TrainSet_4, modelo5)
+```
+
+# Resíduos em função das previsões do modelo
+```{r rest}
+plot_residues(TrainSet_4, modelo5)
+```
+
+# Exclusão dos outliers
+## 5a tentativa
+```{r excluir_outlier_5}
+TrainSet_5 <- filter(TrainSet_4, rp >= -2 & rp <= 2) 
+
+# Apaga as colunas de previsões e resíduos
+TrainSet_5 <- subset(TrainSet_5, select = -c(Val_pred, residuo, rp))
+
+```
+
+# Ajuste do modelo de regressão linear com seleção de variáveis stepwise
+## 6a tentativa
+```{r stepwise_model_6 }
+modelo6 <- fit_model(TrainSet_5)
+summary(modelo6)
+```
+
+# Gráficos de dispersão
+### Mostram a relação entre diferentes variáveis e o alvo
+```{r quantitative_charts}
+plot_relationship(TrainSet, 'target')
+```
+
+##---------------------------------------------------------------------------------------
+##                           AMOSTRA DE VALIDACAO
+##---------------------------------------------------------------------------------------
+
+```
+{r validation_sample}
+#Amostra de validacao
+
+target_pred <- predict(modelo6_stepwise,interval = "prediction", level = 0.95,
+                    newdata = ValidSet, se.fit = T) 
+
+target_pred1 <-target_pred$fit
+ValidSet_pred=cbind(df_train,target_pred1)
+```
+
+```
+{r validation_rest}
+# Residuo na amostra de validacao
+residuo_valid <- ValidSet_pred$target - ValidSet_pred$fit
+hist(residuo_valid)
+qqnorm(residuo_valid, ylab="Res?duos",xlab="Quantis teoricos",main="")
+qqline(residuo_valid)
+```
+
+
+```
+{r validacao_rmse}
+# Erro quadratico medio na amostra de validacao
+mse2 <- mean((ValidSet_pred$target - ValidSet_pred$fit)^2)
+sqrt(mse2)
+```
+
+
+
+
+
+

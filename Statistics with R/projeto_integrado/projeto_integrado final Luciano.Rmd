@@ -1,0 +1,219 @@
+---
+title: "Trabalho integrado"
+author: "Luciano Stegun"
+date: '2023-06-17'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r pacotes}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(gmodels)
+```
+
+```{r dados}
+rm(list=ls())
+library(readr)
+df <- read_csv("/Users/lucianostegun/Projetos/fiap-mba-dts/Statistics with R/projeto_integrado/train.csv")
+```
+1.  Importação dos dados
+2.  Limpeza + pré-processamento dos dados
+3.  Análise exploratória
+4.  Criação de gráficos e visualizações
+5.  Teste de hipóteses ou comparação de grupos
+6.  Ajuste de modelos estatísticos
+7.  Avaliação da qualidade do modelo
+8.  Interpretação dos resultados
+9.  Comunicação dos resultados de forma clara e concisa
+10. Documentação e reprodução da análise
+
+```{r transformacao}
+df$`023c68873b` <- factor(df$`023c68873b`)
+df$`06888ceac9` <- factor(df$`06888ceac9`)
+df$`361f93f4d1` <- factor(df$`361f93f4d1`)
+df$`384bec5dd1` <- factor(df$`384bec5dd1`)
+df$`7cb7913148` <- factor(df$`7cb7913148`)
+df$`8d0606b150` <- factor(df$`8d0606b150`)
+df$`91145d159d` <- factor(df$`91145d159d`)
+df$`9a575e82a4` <- factor(df$`9a575e82a4`)
+df$`b835dfe10f` <- factor(df$`b835dfe10f`)
+df$`e16e640635` <- factor(df$`e16e640635`)
+df$`f1f0984934` <- factor(df$`f1f0984934`)
+```
+
+### 5ª etapa: Faça a análise descritiva das variáveis. Apresente os gráficos e as medidas resumos.
+```{r analise_descritiva}
+summary(df)
+```
+### Análise de correlacao de Pearson
+
+```{r correlacao}
+# selecionar somente as variaveis quantitativas
+df_qtt <- df %>%
+  select(`016399044a`,
+`0342faceb5`,
+`04e7268385`,
+`072b7e8f27`,
+`087235d61e`,
+`0b846350ef`,
+`0e2ab0831c`,
+`12eda2d982`,
+`136c1727c3`,
+`173b6590ae`,
+`174825d438`,
+`1f222e3669`,
+`1f3058af83`,
+`1fa099bb01`,
+`20f1afc5c7`,
+`253eb5ef11`,
+`25bbf0e7e7`,
+`2719b72c0d`,
+`298ed82b22`,
+`29bbd86997`,
+`2a457d15d9`,
+`2bc6ab42f7`,
+`2d7fe4693a`,
+`2e874bc151`,
+`3df2300fa2`,
+`3e200bf766`,
+`3eb53ae932`,
+`435dec85e2`,
+`4468394575`,
+`49756d8e0f`,
+`4fc17427c8`,
+`55907cc1de`,
+`55cf3f7627`,
+`56371466d7`,
+`5b862c0a8f`,
+`5f360995ef`,
+`60ec1426ce`,
+`63bcf89b1d`,
+`6516422788`,
+`65aed7dc1f`,
+`6db53d265a`,
+`7734c0c22f`,
+`7743f273c2`,
+`779d13189e`,
+`77b3b41efa`,
+`7841b6a5b1`,
+`789b5244a9`,
+`7925993f42`,
+`7fe6cb4c98`,
+`8311343404`,
+`87b982928b`,
+`8a21502326`,
+`8c2e088a3d`,
+`8de0382f02`,
+`8f5f7c556a`,
+`96c30c7eef`,
+`96e6f0be58`,
+`98475257f7`,
+`99d44111c9`,
+`9b6e0b36c2`,
+`a14fd026ce`,
+`a24802caa5`,
+`aa69c802b6`,
+`abca7a848f`,
+`ac826f0013`,
+`ae08d2297e`,
+`aee1e4fc85`,
+`b4112a94a6`,
+`b709f75447`,
+`b9a487ac3c`,
+`ba54a2a637`,
+`bdf934caa7`,
+`beb6e17af1`,
+`c0c3df65b1`,
+`c1b8ce2354`,
+`c58f611921`,
+`d035af6ffa`,
+`d2c775fa99`,
+`d4d6566f9c`,
+`dcfcbc2ea1`,
+`e0a0772df0`,
+`e5efa4d39a`,
+`e7ee22effb`,
+`e86a2190c1`,
+`ea0f4a32e3`,
+`ed7e658a27`,
+`ee2ac696ff`,
+`f013b60e50`,
+`f0a0febd35`,
+`f66b98dd69`,
+`fbf66c8021`,
+`fdf8628ca7`,
+`fe0318e273`,
+`fe8cdd80ba`,
+`ffd1cdcfc1`,
+`target`)
+
+correlacao <- cor(df_qtt, df_qtt$target)
+correlacao
+```
+
+```{r grafico_quantitativas}
+qplot(x=df_qtt$`253eb5ef11`, y=df_qtt$`target`)
+qplot(x=df_qtt$`ed7e658a27`, y=df_qtt$`target`)
+qplot(x=df_qtt$`e86a2190c1`, y=df_qtt$`target`)
+qplot(x=df_qtt$`8a21502326`, y=df_qtt$`target`)
+qplot(x=df_qtt$`96c30c7eef`, y=df_qtt$`target`)
+qplot(x=df_qtt$`5b862c0a8f`, y=df_qtt$`target`)
+qplot(x=df_qtt$`fe8cdd80ba`, y=df_qtt$`target`)
+qplot(x=df_qtt$`beb6e17af1`, y=df_qtt$`target`)
+qplot(x=df_qtt$`6db53d265a`, y=df_qtt$`target`)
+qplot(x=df_qtt$`aee1e4fc85`, y=df_qtt$`target`)
+qplot(x=df_qtt$`f66b98dd69`, y=df_qtt$`target`)
+qplot(x=df_qtt$`2719b72c0d`, y=df_qtt$`target`)
+```
+
+```{r treino quantitativas}
+df_treino_qtt = subset(df, select=c(`253eb5ef11`, `ed7e658a27`, `e86a2190c1`, `8a21502326`, `96c30c7eef`, `5b862c0a8f`, `fe8cdd80ba`, `beb6e17af1`, `6db53d265a`, `aee1e4fc85`, `f66b98dd69`, `2719b72c0d`))
+```
+
+```{r treino qualitativas}
+df_treino_qtt = subset(df, select=c())
+
+df$`023c68873b` <- factor(df$`023c68873b`)
+df$`06888ceac9` <- factor(df$`06888ceac9`)
+df$`361f93f4d1` <- factor(df$`361f93f4d1`)
+df$`384bec5dd1` <- factor(df$`384bec5dd1`)
+df$`7cb7913148` <- factor(df$`7cb7913148`)
+df$`8d0606b150` <- factor(df$`8d0606b150`)
+df$`91145d159d` <- factor(df$`91145d159d`)
+df$`9a575e82a4` <- factor(df$`9a575e82a4`)
+df$`b835dfe10f` <- factor(df$`b835dfe10f`)
+df$`e16e640635` <- factor(df$`e16e640635`)
+df$`f1f0984934` <- factor(df$`f1f0984934`)
+```
+
+
+
+### 6ª etapa: Faça a análise bivariada das variáveis qualitativas. 
+#### 6 a)	Tabela de frequência bivariada.
+#### 6 b)	Teste Qui-quadrado.
+#### 6 c)	Gráfico 100% empilhado.
+
+#```{r grafico bivariado}
+#table(df$`023c68873b`
+#table(df$`06888ceac9`)
+#table(df$`361f93f4d1`)
+#table(df$`384bec5dd1`)
+#table(df$`7cb7913148`)
+#table(df$`8d0606b150`)
+#table(df$`91145d159d`)
+#table(df$`9a575e82a4`)
+#table(df$`b835dfe10f`)
+#table(df$`e16e640635`)
+#table(df$`f1f0984934`)
+#```
+
+
+#```{r qui-quadrado}
+#CrossTable(df$`f1f0984934`,df$`f1f0984934`, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE,
+#           prop.chisq = FALSE,chisq = FALSE)
+#```
