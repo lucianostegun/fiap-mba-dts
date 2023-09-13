@@ -1,0 +1,55 @@
+db.createCollection("produtos")
+
+db.produtos.insert({
+  "_id": ObjectId(1),
+  "nome": "Product Name",
+  "modelo": "Model",
+  "fabricante": "Manufacturer",
+  "data_criacao": ISODate("2023-09-10T00:00:00Z"),
+  "tamanhos": [
+    {
+      "nome": "Size Name",
+      "cores": [
+        {
+          "nome": "Color Name"
+        }
+      ]
+    }
+  ]
+})
+
+db.createCollection("clientes")
+db.clientes.insert({
+  "_id": ObjectId(1),
+  "cpf": "12345678901",
+  "nome": "Customer Name",
+  "endereco": "Customer Address",
+  "cep": "12345678",
+  "email": "customer@example.com",
+  "data_criacao": ISODate("2023-09-10T00:00:00Z"),
+  "telefones": [
+    {
+      "telefone": "12345678901"
+    }
+  ]
+})
+
+db.createCollection("pedidos")
+db.pedidos.insert({
+  "_id": ObjectId(1),
+  "codigo_cliente": ObjectId(1),
+  "endereco": "Order Address",
+  "cep": "12345678",
+  "valor": 100.00,
+  "data_criacao": ISODate("2023-09-10T00:00:00Z"),
+  "itens": [
+    {
+      "codigo_produto": ObjectId(1),
+      "tamanho": "medio",
+      "cor": "rosa",
+      "quantidade": 2,
+      "valor": 75.00
+      "valor_total": 150.00
+    }
+  ]
+})

@@ -1,0 +1,27 @@
+CREATE TABLE produtos (
+    codigo UUID PRIMARY KEY,
+    nome TEXT,
+    modelo TEXT,
+    fabricante TEXT,
+    cor SET<TEXT>,
+    tam SET<TEXT>
+);
+
+CREATE TABLE clientes (
+    cpf TEXT PRIMARY KEY,
+    nome TEXT,
+    endereco TEXT,
+    cep TEXT,
+    email TEXT,
+    telefones SET<TEXT>
+);
+
+CREATE TABLE pedidos (
+    pedido_id UUID PRIMARY KEY,
+    cliente_cpf TEXT,
+    endereco TEXT,
+    cep TEXT,
+    itens LIST<TEXT>,
+    qtdes LIST<INT>,
+    valor_pago DECIMAL
+);
