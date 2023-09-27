@@ -1,0 +1,341 @@
+// Inserir dados na coleção "produtos"
+db.produtos.insertMany([
+  {
+    "nome": "Produto A",
+    "modelo": "Modelo X",
+    "fabricante": "Fabricante XA1",
+    "cor": ["Vermelho", "Azul"],
+    "tam": ["Extra Grande"]
+  },
+  {
+    "nome": "Produto B",
+    "modelo": "Modelo Y",
+    "fabricante": "Fabricante YB2",
+    "cor": ["Roxo", "Rosa"],
+    "tam": ["4"]
+  },
+  {
+    "nome": "Produto C",
+    "modelo": "Modelo Z",
+    "fabricante": "Fabricante ZC3",
+    "cor": ["Prata", "Dourado"],
+    "tam": ["6"]
+  },
+  {
+    "nome": "Produto D",
+    "modelo": "Modelo X",
+    "fabricante": "Fabricante XD1",
+    "cor": ["Branco", "Preto"],
+    "tam": ["10"]
+  },
+  {
+    "nome": "Produto E",
+    "modelo": "Modelo Y",
+    "fabricante": "Fabricante YE2",
+    "cor": ["Amarelo", "Verde"],
+    "tam": ["12"]
+  },
+  {
+    "nome": "Produto F",
+    "modelo": "Modelo Z",
+    "fabricante": "Fabricante ZF3",
+    "cor": ["Verde", "Azul"],
+    "tam": ["8"]
+  },
+  {
+    "nome": "Produto G",
+    "modelo": "Modelo X",
+    "fabricante": "Fabricante XG1",
+    "cor": ["Vermelho", "Amarelo"],
+    "tam": ["2"]
+  },
+  {
+    "nome": "Produto H",
+    "modelo": "Modelo Y",
+    "fabricante": "Fabricante YH2",
+    "cor": ["Preto", "Branco"],
+    "tam": ["Extra Grande"]
+  },
+  {
+    "nome": "Produto I",
+    "modelo": "Modelo Z",
+    "fabricante": "Fabricante ZI3",
+    "cor": ["Prata", "Roxo"],
+    "tam": ["4"]
+  },
+  {
+    "nome": "Produto J",
+    "modelo": "Modelo X",
+    "fabricante": "Fabricante XJ1",
+    "cor": ["Dourado", "Rosa"],
+    "tam": ["6"]
+  }
+]);
+
+// Inserir dados na coleção "clientes"
+db.clientes.insertMany([
+  {
+    "cpf": "12345678901",
+    "nome": "João Silva",
+    "endereco": "Rua das Flores, 123",
+    "cep": "12345678",
+    "email": "joao.silva@email.com",
+    "telefones": ["11928374651"]
+  },
+  {
+    "cpf": "23456789012",
+    "nome": "Ana Santos",
+    "endereco": "Avenida Principal, 456",
+    "cep": "23456789",
+    "email": "ana.santos@email.com",
+    "telefones": ["11929363947"]
+  },
+  {
+    "cpf": "34567890123",
+    "nome": "Luiz Ferreira",
+    "endereco": "Travessa da Praia, 789",
+    "cep": "34567890",
+    "email": "luiz.ferreira@email.com",
+    "telefones": ["11999283664"]
+  },
+  {
+    "cpf": "45678901234",
+    "nome": "Marina Oliveira",
+    "endereco": "Alameda dos Sonhos, 101",
+    "cep": "45678901",
+    "email": "marina.oliveira@email.com",
+    "telefones": ["11928837640"]
+  },
+  {
+    "cpf": "56789012345",
+    "nome": "Carlos Souza",
+    "endereco": "Rua do Comércio, 55",
+    "cep": "56789012",
+    "email": "carlos.souza@email.com",
+    "telefones": ["11989475610"]
+  },
+  {
+    "cpf": "67890123456",
+    "nome": "Lucia Pereira",
+    "endereco": "Avenida Central, 234",
+    "cep": "67890123",
+    "email": "lucia.pereira@email.com",
+    "telefones": ["11974912203"]
+  },
+  {
+    "cpf": "78901234567",
+    "nome": "Eduardo Rodrigues",
+    "endereco": "Travessa da Montanha, 12",
+    "cep": "78901234",
+    "email": "eduardo.rodrigues@email.com",
+    "telefones": ["11999887765"]
+  },
+  {
+    "cpf": "89012345678",
+    "nome": "Isabela Almeida",
+    "endereco": "Alameda das Flores, 34",
+    "cep": "89012345",
+    "email": "isabela.almeida@email.com",
+    "telefones": ["11980304858"]
+  },
+  {
+    "cpf": "90123456789",
+    "nome": "Gustavo Martins",
+    "endereco": "Rua dos Bosques, 78",
+    "cep": "90123456",
+    "email": "gustavo.martins@email.com",
+    "telefones": ["11952431099"]
+  },
+  {
+    "cpf": "12334567890",
+    "nome": "Amanda Lima",
+    "endereco": "Travessa da Cidade, 56",
+    "cep": "12334567",
+    "email": "amanda.lima@email.com",
+    "telefones": ["11922884627"]
+  }
+]);
+
+// Inserir dados na coleção "pedidos"
+db.pedidos.insertMany([
+  {
+    "cliente_cpf": "12345678901",
+    "endereco": "Rua das Flores, 123",
+    "cep": "12345678",
+    "valor_pago": 100,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 19,
+            "nome": "Produto J",
+            "valor": 10
+          },
+          "tamanho": "Pequeno",
+          "cor": "Azul",
+          "quantidade": 10
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "23456789012",
+    "endereco": "Avenida Principal, 456",
+    "cep": "23456789",
+    "valor_pago": 200,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 9,
+            "nome": "Produto I",
+            "valor": 10
+          },
+          "tamanho": "Grande",
+          "cor": "Amarelo",
+          "quantidade": 20
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "34567890123",
+    "endereco": "Travessa da Praia, 789",
+    "cep": "34567890",
+    "valor_pago": 300,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 8,
+            "nome": "Produto H",
+            "valor": 30
+          },
+          "tamanho": "2",
+          "cor": "Branco",
+          "quantidade": 10
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "45678901234",
+    "endereco": "Alameda dos Sonhos, 101",
+    "cep": "45678901",
+    "valor_pago": 400,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 7,
+            "nome": "Produto G",
+            "valor": 10
+          },
+          "tamanho": "6",
+          "cor": "Dourado",
+          "quantidade": 40
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "56789012345",
+    "endereco": "Rua do Comércio, 55",
+    "cep": "56789012",
+    "valor_pago": 500,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 6,
+            "nome": "Produto F",
+            "valor": 50
+          },
+          "tamanho": "10",
+          "cor": "Rosa",
+          "quantidade": 10
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "67890123456",
+    "endereco": "Avenida Central, 234",
+    "cep": "67890123",
+    "valor_pago": 600,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 5,
+            "nome": "Produto E",
+            "valor": 10
+          },
+          "tamanho": "12",
+          "cor": "Roxo",
+          "quantidade": 60
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "78901234567",
+    "endereco": "Travessa da Montanha, 12",
+    "cep": "78901234",
+    "valor_pago": 700,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 4,
+            "nome": "Produto D",
+            "valor": 70
+          },
+          "tamanho": "8",
+          "cor": "Prata",
+          "quantidade": 10
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "89012345678",
+    "endereco": "Alameda das Flores, 34",
+    "cep": "89012345",
+    "valor_pago": 800,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 3,
+            "nome": "Produto C",
+            "valor": 10
+          },
+          "tamanho": "4",
+          "cor": "Preto",
+          "quantidade": 80
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "90123456789",
+    "endereco": "Rua dos Bosques, 78",
+    "cep": "90123456",
+    "valor_pago": 900,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 2,
+            "nome": "Produto B",
+            "valor": 90
+          },
+          "tamanho": "Extra Grande",
+          "cor": "Verde",
+          "quantidade": 10
+      }
+    ]
+  },
+  {
+    "cliente_cpf": "12334567890",
+    "endereco": "Travessa da Cidade, 56",
+    "cep": "12334567",
+    "valor_pago": 1000,
+    "itens": [
+      {
+          "produto": {
+            "codigo": 1,
+            "nome": "Produto A",
+            "valor": 100
+          },
+          "tamanho": "Médio",
+          "cor": "Vermelho",
+          "quantidade": 10
+      }
+    ]
+  }
+]);
