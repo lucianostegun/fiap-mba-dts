@@ -29,6 +29,8 @@ As opções de áudio para saudação e interações foram pré-configuradas e s
 
 # Como Usar  
 
+Identifique o microfone a ser utilizado e configure o índice na constante `MICROPHONE_INDEX`
+
 Execute o notebook Jupyter.
 O serviço começará com uma saudação. Escute e aguarde.
 
@@ -39,6 +41,10 @@ O sistema tentará identificar sua opção e reproduzirá uma resposta correspon
 
 1. record_user_input()
 Função para capturar o áudio do usuário.  
+
+1. play_audio()
+Função personalizada para reproduzir áudio baseado na função nativa do OS em execução
+Esse função é muito últil para execução direta do arquivo `.py` a partir da linha de comando
 
 2. analyse_input(input)
 Função para analisar o áudio do usuário e converter para texto.
