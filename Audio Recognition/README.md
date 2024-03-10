@@ -1,5 +1,7 @@
 # Guia do Usuário - Serviço de Atendimento Telefônico Quantum Finance
 
+## Vídeo de explicação da execução do programa
+https://drive.google.com/file/d/1dLWj_UOt2WDYov6qyJZZQeuctb5APEtC/view?usp=sharing
 
 ## Introdução
 
